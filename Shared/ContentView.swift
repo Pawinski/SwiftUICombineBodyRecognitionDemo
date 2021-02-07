@@ -8,9 +8,17 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @State var pointViewModels: [PointViewModel] = []
+
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        ZStack {
+            SwiftUICameraViewController(pointViewModels: $pointViewModels)
+                .edgesIgnoringSafeArea(.top)
+            DetectionOverlay(pointViewModels: $pointViewModels)
+                .edgesIgnoringSafeArea(.top)
+                .foregroundColor(.clear)
+        }
     }
 }
 
