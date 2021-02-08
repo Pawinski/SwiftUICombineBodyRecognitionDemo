@@ -7,9 +7,10 @@
 
 import SwiftUI
 
-struct SwiftUICameraViewController: UIViewControllerRepresentable {
+struct DetectionViewController: UIViewControllerRepresentable {
 
     let pointViewModels: Binding<[PointViewModel]>
+    let errorViewModel: Binding<AVCaptureError?>
 
     public func makeUIViewController(context: Context) -> CameraViewController {
         let viewController = CameraViewController()
@@ -22,7 +23,7 @@ struct SwiftUICameraViewController: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(pointViewModelsBinding: pointViewModels)
+        Coordinator(pointViewModelsBinding: pointViewModels, errorViewModelBinding: errorViewModel)
     }
 }
 
@@ -30,12 +31,23 @@ struct SwiftUICameraViewController: UIViewControllerRepresentable {
 class Coordinator: CameraViewControllerDelegate {
 
     let pointViewModelsBinding: Binding<[PointViewModel]>
+    let errorViewModelBinding: Binding<AVCaptureError?>
 
-    init(pointViewModelsBinding: Binding<[PointViewModel]>) {
+    init(pointViewModelsBinding: Binding<[PointViewModel]>,
+         errorViewModelBinding: Binding<AVCaptureError?>) {
         self.pointViewModelsBinding = pointViewModelsBinding
+        self.errorViewModelBinding = errorViewModelBinding
     }
-
-    func updatedPointViewModels(_ viewController: CameraViewController, pointViewModels: [PointViewModel]) {
-        pointViewModelsBinding.wrappedValue = pointViewModels
+    
+    func updatedPointViewModels(_ pointViewModels: [PointViewModel]) {
+        DispatchQueue.main.async {
+            self.pointViewModelsBinding.wrappedValue = pointViewModels
+        }
+    }
+    
+    func receivedError(_ error: AVCaptureError) {
+        DispatchQueue.main.async {
+            self.errorViewModelBinding.wrappedValue = error
+        }
     }
 }

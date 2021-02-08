@@ -19,8 +19,8 @@
 		AC7AF10B25D09FDB00A53E4A /* CameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7AF10625D09FDB00A53E4A /* CameraController.swift */; };
 		AC7AF10C25D09FDB00A53E4A /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7AF10725D09FDB00A53E4A /* CameraViewController.swift */; };
 		AC7AF10D25D09FDB00A53E4A /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7AF10725D09FDB00A53E4A /* CameraViewController.swift */; };
-		AC7AF10E25D09FDB00A53E4A /* SwiftUICameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7AF10825D09FDB00A53E4A /* SwiftUICameraViewController.swift */; };
-		AC7AF10F25D09FDB00A53E4A /* SwiftUICameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7AF10825D09FDB00A53E4A /* SwiftUICameraViewController.swift */; };
+		AC7AF10E25D09FDB00A53E4A /* DetectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7AF10825D09FDB00A53E4A /* DetectionViewController.swift */; };
+		AC7AF10F25D09FDB00A53E4A /* DetectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7AF10825D09FDB00A53E4A /* DetectionViewController.swift */; };
 		AC7AF11025D09FDB00A53E4A /* VisionBodyDetectionPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7AF10925D09FDB00A53E4A /* VisionBodyDetectionPresenter.swift */; };
 		AC7AF11125D09FDB00A53E4A /* VisionBodyDetectionPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7AF10925D09FDB00A53E4A /* VisionBodyDetectionPresenter.swift */; };
 		AC7AF11825D0A00F00A53E4A /* DetectionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7AF11725D0A00F00A53E4A /* DetectionOverlay.swift */; };
@@ -63,7 +63,7 @@
 		AC7AF0EC25D09F9C00A53E4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AC7AF10625D09FDB00A53E4A /* CameraController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraController.swift; sourceTree = "<group>"; };
 		AC7AF10725D09FDB00A53E4A /* CameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
-		AC7AF10825D09FDB00A53E4A /* SwiftUICameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUICameraViewController.swift; sourceTree = "<group>"; };
+		AC7AF10825D09FDB00A53E4A /* DetectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetectionViewController.swift; sourceTree = "<group>"; };
 		AC7AF10925D09FDB00A53E4A /* VisionBodyDetectionPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VisionBodyDetectionPresenter.swift; sourceTree = "<group>"; };
 		AC7AF11725D0A00F00A53E4A /* DetectionOverlay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetectionOverlay.swift; sourceTree = "<group>"; };
 		AC7AF11E25D0A01700A53E4A /* PointViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PointViewModel.swift; sourceTree = "<group>"; };
@@ -177,7 +177,7 @@
 			children = (
 				AC7AF10625D09FDB00A53E4A /* CameraController.swift */,
 				AC7AF10725D09FDB00A53E4A /* CameraViewController.swift */,
-				AC7AF10825D09FDB00A53E4A /* SwiftUICameraViewController.swift */,
+				AC7AF10825D09FDB00A53E4A /* DetectionViewController.swift */,
 				AC7AF10925D09FDB00A53E4A /* VisionBodyDetectionPresenter.swift */,
 			);
 			path = BodyRecognition;
@@ -355,7 +355,7 @@
 				AC7AF0EF25D09F9C00A53E4A /* ContentView.swift in Sources */,
 				AC7AF11F25D0A01700A53E4A /* PointViewModel.swift in Sources */,
 				AC7AF0ED25D09F9C00A53E4A /* SwiftUICombineBodyRecognitionDemoApp.swift in Sources */,
-				AC7AF10E25D09FDB00A53E4A /* SwiftUICameraViewController.swift in Sources */,
+				AC7AF10E25D09FDB00A53E4A /* DetectionViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -370,7 +370,7 @@
 				AC7AF0F025D09F9C00A53E4A /* ContentView.swift in Sources */,
 				AC7AF12025D0A01700A53E4A /* PointViewModel.swift in Sources */,
 				AC7AF0EE25D09F9C00A53E4A /* SwiftUICombineBodyRecognitionDemoApp.swift in Sources */,
-				AC7AF10F25D09FDB00A53E4A /* SwiftUICameraViewController.swift in Sources */,
+				AC7AF10F25D09FDB00A53E4A /* DetectionViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

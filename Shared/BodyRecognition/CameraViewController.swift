@@ -9,7 +9,8 @@ import UIKit
 import Combine
 
 protocol CameraViewControllerDelegate: AnyObject {
-    func updatedPointViewModels(_ viewController: CameraViewController, pointViewModels: [PointViewModel])
+    func updatedPointViewModels(_ pointViewModels: [PointViewModel])
+    func receivedError(_ error: AVCaptureError)
 }
 
 final class CameraViewController: UIViewController {
@@ -27,17 +28,27 @@ final class CameraViewController: UIViewController {
                                            height: UIScreen.main.bounds.size.height))
         previewView.contentMode = .scaleAspectFit
         view.addSubview(previewView)
-        cameraController.prepare { error in
-            if let error = error {
-                print(error)
+        cameraController.prepare {
+            do {
+                try self.cameraController.displayPreview(on: self.previewView)
+            } catch {
+                self.delegate?.receivedError(AVCaptureError.standard(description: error.localizedDescription))
             }
-            try? self.cameraController.displayPreview(on: self.previewView)
         }
         cameraController.detectionPublisher
             .removeDuplicates()
-            .sink { points in
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .failure(let error):
+                    self.delegate?.receivedError(error)
+                case .finished:
+                    return
+                }
+            },
+            receiveValue: { points in
                 let pointViewModels = points.compactMap { PointViewModel(x: Float($0.x), y: Float($0.y)) }
-                self.delegate?.updatedPointViewModels(self, pointViewModels: pointViewModels)
-            }.store(in: &cancellables)
+                self.delegate?.updatedPointViewModels( pointViewModels)
+            })
+            .store(in: &cancellables)
     }
 }

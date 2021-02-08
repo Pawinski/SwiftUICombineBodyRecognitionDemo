@@ -13,8 +13,13 @@ protocol PresenterProtocol {
 }
 
 protocol VisionHandlerProtocol {
-    func setupVision(frameWidth: CGFloat, frameHeight: CGFloat, completion: @escaping ([CGPoint]) -> ())
+    func setupVision(frameWidth: CGFloat, frameHeight: CGFloat, completion: @escaping ([CGPoint]?, VisionError?) -> ())
     func processBuffer(_ buffer: CVImageBuffer, orientation: CGImagePropertyOrientation)
+}
+
+enum VisionError: Swift.Error {
+    case standard(description: String)
+    case unknown
 }
 
 class VisionBodyDetectionPresenter: PresenterProtocol, VisionHandlerProtocol {
@@ -65,15 +70,16 @@ class VisionBodyDetectionPresenter: PresenterProtocol, VisionHandlerProtocol {
         return viewModels
     }
 
-    func setupVision(frameWidth: CGFloat, frameHeight: CGFloat, completion:  @escaping ([CGPoint]) -> ()) {
+    func setupVision(frameWidth: CGFloat, frameHeight: CGFloat, completion:  @escaping ([CGPoint]?, VisionError?) -> ()) {
         let bodyRequest = VNDetectHumanBodyPoseRequest(completionHandler: { (request, error) in
-            guard error == nil else {
-                print(error!)
+            if let error = error {
+                let visionError = VisionError.standard(description: error.localizedDescription)
+                completion(nil, visionError)
                 return
             }
             if let results = request.results {
                 let imagePoints = self.imagePoints(for: results, frameWidth: frameWidth, frameHeight: frameHeight)
-                completion(imagePoints)
+                completion(imagePoints, nil)
             }
         })
         requests = [bodyRequest]

@@ -7,17 +7,27 @@
 
 import SwiftUI
 
+class AppViewModel: ObservableObject {
+    @Published var pointViewModels: [PointViewModel] = []
+    @Published var errorViewModel: AVCaptureError?
+}
+
 struct ContentView: View {
-    
-    @State var pointViewModels: [PointViewModel] = []
+
+    @ObservedObject var appViewModel = AppViewModel()
 
     var body: some View {
         ZStack {
-            SwiftUICameraViewController(pointViewModels: $pointViewModels)
+            DetectionViewController(pointViewModels: $appViewModel.pointViewModels,
+                                    errorViewModel: $appViewModel.errorViewModel)
                 .edgesIgnoringSafeArea(.top)
-            DetectionOverlay(pointViewModels: $pointViewModels)
-                .edgesIgnoringSafeArea(.top)
-                .foregroundColor(.clear)
+            if let error = appViewModel.errorViewModel {
+                Text("Error: \(error.localizedDescription)")
+            } else {
+                DetectionOverlay(pointViewModels: $appViewModel.pointViewModels)
+                    .edgesIgnoringSafeArea(.top)
+                    .foregroundColor(.clear)
+            }
         }
     }
 }
