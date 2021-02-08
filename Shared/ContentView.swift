@@ -20,15 +20,15 @@ struct ContentView: View {
         ZStack {
             DetectionViewController(pointViewModels: $appViewModel.pointViewModels,
                                     errorViewModel: $appViewModel.errorViewModel)
-                .edgesIgnoringSafeArea(.top)
             if let error = appViewModel.errorViewModel {
                 Text("Error: \(error.localizedDescription)")
             } else {
                 DetectionOverlay(pointViewModels: $appViewModel.pointViewModels)
-                    .edgesIgnoringSafeArea(.top)
                     .foregroundColor(.clear)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .edgesIgnoringSafeArea(.top)
     }
 }
 
