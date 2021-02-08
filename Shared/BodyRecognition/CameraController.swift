@@ -28,6 +28,7 @@ class CameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
 
     var captureSession = AVCaptureSession()
     var previewLayer: AVCaptureVideoPreviewLayer?
+    var layerBounds: CGRect = .zero
     var videoDataOutput = AVCaptureVideoDataOutput()
 
     private let videoDataOutputQueue = DispatchQueue(label: "VideoDataOutput",
@@ -58,12 +59,29 @@ class CameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             if let visionError = visionError {
                 let error = AVCaptureError.vision(description: visionError.localizedDescription)
                 self.detectionSubject.send(completion: Subscribers.Completion<AVCaptureError>.failure(error))
-            } else if let cgPoints = cgPoints {
-                self.detectionSubject.send(cgPoints)
+            } else if let cgPoints = cgPoints,
+                      !cgPoints.isEmpty {
+                let adjustedPoints = self.adjustPoints(cgPoints, forBounds: self.layerBounds, bufferSize: self.bufferSize)
+                self.detectionSubject.send(adjustedPoints)
             }
         }
         startCapture()
         completion()
+    }
+
+    private func adjustPoints( _ points: [CGPoint], forBounds bounds: CGRect, bufferSize: CGSize) -> [CGPoint] {
+        var scale: CGFloat
+        let xScale: CGFloat = bounds.size.width / bufferSize.height
+        let yScale: CGFloat = bounds.size.height / bufferSize.width
+        scale = fmax(xScale, yScale)
+        if scale.isInfinite {
+            scale = 1.0
+        }
+        return points.compactMap { cgPoint in
+            let newX = cgPoint.y * scale
+            let newY = cgPoint.x * scale
+            return CGPoint(x: newX, y: newY)
+        }
     }
 
     func createCaptureSession() throws {
@@ -124,6 +142,7 @@ class CameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         previewLayer?.connection?.videoOrientation = .portrait
         view.layer.insertSublayer(previewLayer!, at: 0)
         previewLayer?.frame = view.frame
+        layerBounds = previewLayer?.bounds ?? .zero
     }
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {

@@ -23,7 +23,8 @@ struct DetectionViewController: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(pointViewModelsBinding: pointViewModels, errorViewModelBinding: errorViewModel)
+        Coordinator(pointViewModelsBinding: pointViewModels,
+                    errorViewModelBinding: errorViewModel)
     }
 }
 
@@ -38,13 +39,13 @@ class Coordinator: CameraViewControllerDelegate {
         self.pointViewModelsBinding = pointViewModelsBinding
         self.errorViewModelBinding = errorViewModelBinding
     }
-    
+
     func updatedPointViewModels(_ pointViewModels: [PointViewModel]) {
         DispatchQueue.main.async {
             self.pointViewModelsBinding.wrappedValue = pointViewModels
         }
     }
-    
+
     func receivedError(_ error: AVCaptureError) {
         DispatchQueue.main.async {
             self.errorViewModelBinding.wrappedValue = error

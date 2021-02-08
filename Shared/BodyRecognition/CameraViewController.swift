@@ -47,7 +47,7 @@ final class CameraViewController: UIViewController {
             },
             receiveValue: { points in
                 let pointViewModels = points.compactMap { PointViewModel(x: Float($0.x), y: Float($0.y)) }
-                self.delegate?.updatedPointViewModels( pointViewModels)
+                self.delegate?.updatedPointViewModels(pointViewModels)
             })
             .store(in: &cancellables)
     }
