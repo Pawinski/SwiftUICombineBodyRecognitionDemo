@@ -9,19 +9,25 @@ import UIKit
 import AVFoundation
 import Combine
 
+enum VisionError: Swift.Error {
+    case detection(_: Swift.Error)
+}
+
 enum AVCaptureError: Swift.Error {
-    case cameraInputUnavailable
-    case cameraUnavailable
-    case cameraUnableToLockConfiguration
+    enum CameraError: Swift.Error {
+        case cameraUnavailable
+        case inputUnavailable
+        case unableToLockConfiguration
+    }
+    case cameraError(_: CameraError)
+    case visionError(_: VisionError)
     case captureSessionIsMissing
     case pixelbufferUnavailable
     case sessionUnableToAddInput
     case sessionUnableToAddOutput
     case videoOutputMissingConnection
-    case unknown
-    case standard(description:String)
-    case combine(description:String)
-    case vision(description:String)
+    case unableToProcessBuffer(_: Swift.Error)
+    case standard(_: Swift.Error)
 }
 
 class CameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -49,15 +55,20 @@ class CameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     func prepare(_ completion: @escaping () -> Void) {
         do {
             try createCaptureSession()
-        } catch {
-            let avError = AVCaptureError.standard(description: error.localizedDescription)
-            detectionSubject.send(completion: Subscribers.Completion<AVCaptureError>.failure(avError))
+        } catch let error {
+            switch error {
+            case let error as AVCaptureError:
+                detectionSubject.send(completion: Subscribers.Completion<AVCaptureError>.failure(error))
+            default:
+                let error = AVCaptureError.standard(error)
+                detectionSubject.send(completion: Subscribers.Completion<AVCaptureError>.failure(error))
+            }
             completion()
             return
         }
         presenter.setupVision(frameWidth: bufferSize.width, frameHeight: bufferSize.height) { (cgPoints, visionError) in
             if let visionError = visionError {
-                let error = AVCaptureError.vision(description: visionError.localizedDescription)
+                let error = AVCaptureError.visionError(visionError)
                 self.detectionSubject.send(completion: Subscribers.Completion<AVCaptureError>.failure(error))
             } else if let cgPoints = cgPoints,
                       !cgPoints.isEmpty {
@@ -89,12 +100,12 @@ class CameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         guard let videoDevice = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera],
                                                                  mediaType: .video,
                                                                  position: .back).devices.first else {
-            throw AVCaptureError.cameraUnavailable
+            throw AVCaptureError.cameraError(.cameraUnavailable)
         }
         do {
             deviceInput = try AVCaptureDeviceInput(device: videoDevice)
         } catch {
-            throw AVCaptureError.cameraInputUnavailable
+            throw AVCaptureError.cameraError(.inputUnavailable)
         }
         captureSession.beginConfiguration()
         captureSession.sessionPreset = .vga640x480 // Model image size is smaller.
@@ -124,7 +135,7 @@ class CameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             bufferSize.height = CGFloat(dimensions.height)
             videoDevice.unlockForConfiguration()
         } catch {
-            throw AVCaptureError.cameraUnableToLockConfiguration
+            throw AVCaptureError.cameraError(.unableToLockConfiguration)
         }
         captureSession.commitConfiguration()
     }
@@ -147,11 +158,15 @@ class CameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
-            self.detectionSubject.send(completion: Subscribers.Completion<AVCaptureError>.failure(.pixelbufferUnavailable))
+            detectionSubject.send(completion: Subscribers.Completion<AVCaptureError>.failure(.pixelbufferUnavailable))
             return
         }
         let exifOrientation = exifOrientationFromDeviceOrientation()
-        presenter.processBuffer(pixelBuffer, orientation: exifOrientation)
+        do {
+            try presenter.processBuffer(pixelBuffer, orientation: exifOrientation)
+        } catch let error {
+            detectionSubject.send(completion: Subscribers.Completion<AVCaptureError>.failure(.unableToProcessBuffer(error)))
+        }
     }
 
     func captureOutput(_ captureOutput: AVCaptureOutput, didDrop didDropSampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {

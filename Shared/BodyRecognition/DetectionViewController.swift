@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DetectionViewController: UIViewControllerRepresentable {
 
-    let pointViewModels: Binding<[PointViewModel]>
+    let pointViewModels: Binding<Array<PointViewModel>>
     let errorViewModel: Binding<AVCaptureError?>
 
     public func makeUIViewController(context: Context) -> CameraViewController {
@@ -31,16 +31,16 @@ struct DetectionViewController: UIViewControllerRepresentable {
 // Coordinates SwiftUI/UIKit data binding
 class Coordinator: CameraViewControllerDelegate {
 
-    let pointViewModelsBinding: Binding<[PointViewModel]>
+    let pointViewModelsBinding: Binding<Array<PointViewModel>>
     let errorViewModelBinding: Binding<AVCaptureError?>
 
-    init(pointViewModelsBinding: Binding<[PointViewModel]>,
+    init(pointViewModelsBinding: Binding<Array<PointViewModel>>,
          errorViewModelBinding: Binding<AVCaptureError?>) {
         self.pointViewModelsBinding = pointViewModelsBinding
         self.errorViewModelBinding = errorViewModelBinding
     }
 
-    func updatedPointViewModels(_ pointViewModels: [PointViewModel]) {
+    func updatedPointViewModels(_ pointViewModels: Array<PointViewModel>) {
         DispatchQueue.main.async {
             self.pointViewModelsBinding.wrappedValue = pointViewModels
         }

@@ -14,12 +14,7 @@ protocol PresenterProtocol {
 
 protocol VisionHandlerProtocol {
     func setupVision(frameWidth: CGFloat, frameHeight: CGFloat, completion: @escaping ([CGPoint]?, VisionError?) -> ())
-    func processBuffer(_ buffer: CVImageBuffer, orientation: CGImagePropertyOrientation)
-}
-
-enum VisionError: Swift.Error {
-    case standard(description: String)
-    case unknown
+    func processBuffer(_ buffer: CVImageBuffer, orientation: CGImagePropertyOrientation) throws
 }
 
 class VisionBodyDetectionPresenter: PresenterProtocol, VisionHandlerProtocol {
@@ -71,9 +66,9 @@ class VisionBodyDetectionPresenter: PresenterProtocol, VisionHandlerProtocol {
     }
 
     func setupVision(frameWidth: CGFloat, frameHeight: CGFloat, completion:  @escaping ([CGPoint]?, VisionError?) -> ()) {
-        let bodyRequest = VNDetectHumanBodyPoseRequest(completionHandler: { (request, error) in
+        let bodyRequest = VNDetectHumanBodyPoseRequest { request, error in
             if let error = error {
-                let visionError = VisionError.standard(description: error.localizedDescription)
+                let visionError = VisionError.detection(error)
                 completion(nil, visionError)
                 return
             }
@@ -81,18 +76,18 @@ class VisionBodyDetectionPresenter: PresenterProtocol, VisionHandlerProtocol {
                 let imagePoints = self.imagePoints(for: results, frameWidth: frameWidth, frameHeight: frameHeight)
                 completion(imagePoints, nil)
             }
-        })
+        }
         requests = [bodyRequest]
     }
 
-    func processBuffer(_ buffer: CVImageBuffer, orientation: CGImagePropertyOrientation) {
+    func processBuffer(_ buffer: CVImageBuffer, orientation: CGImagePropertyOrientation) throws {
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: buffer,
                                                         orientation: orientation,
                                                         options: [:])
         do {
             try imageRequestHandler.perform(requests)
-        } catch {
-            print(error)
+        } catch let error {
+            throw error
         }
     }
 }

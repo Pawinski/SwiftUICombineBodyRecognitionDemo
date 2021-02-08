@@ -9,7 +9,7 @@ import UIKit
 import Combine
 
 protocol CameraViewControllerDelegate: AnyObject {
-    func updatedPointViewModels(_ pointViewModels: [PointViewModel])
+    func updatedPointViewModels(_ pointViewModels: Array<PointViewModel>)
     func receivedError(_ error: AVCaptureError)
 }
 
@@ -32,7 +32,7 @@ final class CameraViewController: UIViewController {
             do {
                 try self.cameraController.displayPreview(on: self.previewView)
             } catch {
-                self.delegate?.receivedError(AVCaptureError.standard(description: error.localizedDescription))
+                self.delegate?.receivedError(AVCaptureError.standard(error))
             }
         }
         cameraController.detectionPublisher

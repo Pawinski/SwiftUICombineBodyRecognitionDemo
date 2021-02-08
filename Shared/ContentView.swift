@@ -8,13 +8,13 @@
 import SwiftUI
 
 class AppViewModel: ObservableObject {
-    @Published var pointViewModels: [PointViewModel] = []
+    @Published var pointViewModels = Array<PointViewModel>()
     @Published var errorViewModel: AVCaptureError?
 }
 
 struct ContentView: View {
 
-    @ObservedObject var appViewModel = AppViewModel()
+    @ObservedObject var appViewModel: AppViewModel
 
     var body: some View {
         ZStack {
@@ -34,6 +34,6 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(appViewModel: AppViewModel())
     }
 }
