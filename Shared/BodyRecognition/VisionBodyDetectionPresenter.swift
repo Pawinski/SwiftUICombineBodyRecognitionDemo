@@ -5,8 +5,11 @@
 //  Created by Alexander Pawinski on 2021-02-06.
 //
 
-import Foundation
 import Vision
+
+enum VisionError: Swift.Error {
+    case detection(_: Swift.Error)
+}
 
 protocol PresenterProtocol {
     func imagePoints(for results: [Any], frameWidth: CGFloat, frameHeight: CGFloat) -> [CGPoint]
@@ -14,7 +17,7 @@ protocol PresenterProtocol {
 
 protocol VisionHandlerProtocol {
     func setupVision(frameWidth: CGFloat, frameHeight: CGFloat, completion: @escaping ([CGPoint]?, VisionError?) -> ())
-    func processBuffer(_ buffer: CVImageBuffer, orientation: CGImagePropertyOrientation) throws
+    func processBuffer(_ buffer: CMSampleBuffer, orientation: CGImagePropertyOrientation) throws
 }
 
 class VisionBodyDetectionPresenter: PresenterProtocol, VisionHandlerProtocol {
@@ -30,29 +33,29 @@ class VisionBodyDetectionPresenter: PresenterProtocol, VisionHandlerProtocol {
             guard let recognizedPoints = try? objectObservation.recognizedPoints(forGroupKey: .all) else {
                 continue
             }
-            let torsoKeys: [VNRecognizedPointKey] = [
-                .bodyLandmarkKeyNose,
-                .bodyLandmarkKeyLeftEye,
-                .bodyLandmarkKeyRightEye,
-                .bodyLandmarkKeyLeftEar,
-                .bodyLandmarkKeyRightEar,
-                .bodyLandmarkKeyLeftShoulder,
-                .bodyLandmarkKeyRightShoulder,
-                .bodyLandmarkKeyNeck,
-                .bodyLandmarkKeyLeftElbow,
-                .bodyLandmarkKeyRightElbow,
-                .bodyLandmarkKeyLeftWrist,
-                .bodyLandmarkKeyRightWrist,
-                .bodyLandmarkKeyLeftHip,
-                .bodyLandmarkKeyRightHip,
-                .bodyLandmarkKeyRoot,
-                .bodyLandmarkKeyLeftKnee,
-                .bodyLandmarkKeyRightKnee,
-                .bodyLandmarkKeyLeftAnkle,
-                .bodyLandmarkKeyRightAnkle
+            let torsoKeys: [VNHumanBodyPoseObservation.JointName] = [
+                .nose,
+                .leftEye,
+                .rightEye,
+                .leftEar,
+                .rightEar,
+                .leftShoulder,
+                .rightShoulder,
+                .neck,
+                .leftElbow,
+                .rightElbow,
+                .leftWrist,
+                .rightWrist,
+                .leftHip,
+                .rightHip,
+                .root,
+                .leftKnee,
+                .rightKnee,
+                .leftAnkle,
+                .rightAnkle
             ]
             let imagePoints: [CGPoint] = torsoKeys.compactMap {
-                guard let point = recognizedPoints[$0],
+                guard let point = recognizedPoints[$0.rawValue],
                       point.confidence > 0.5 else {
                     return nil
                 }
@@ -80,8 +83,11 @@ class VisionBodyDetectionPresenter: PresenterProtocol, VisionHandlerProtocol {
         requests = [bodyRequest]
     }
 
-    func processBuffer(_ buffer: CVImageBuffer, orientation: CGImagePropertyOrientation) throws {
-        let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: buffer,
+    func processBuffer(_ buffer: CMSampleBuffer, orientation: CGImagePropertyOrientation) throws {
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(buffer) else {
+            throw AVCaptureError.pixelbufferUnavailable
+        }
+        let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer,
                                                         orientation: orientation,
                                                         options: [:])
         do {

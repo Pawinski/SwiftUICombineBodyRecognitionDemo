@@ -8,7 +8,8 @@
 import SwiftUI
 
 class AppViewModel: ObservableObject {
-    @Published var pointViewModels = Array<PointViewModel>()
+    @Published var bufferSize: CGSize = CGSize(width: 640, height: 480)
+    @Published var pointViewModels = [PointViewModel(x: 100, y: 100)]
     @Published var errorViewModel: AVCaptureError?
 }
 
@@ -23,7 +24,8 @@ struct ContentView: View {
             if let error = appViewModel.errorViewModel {
                 Text("Error: \(error.localizedDescription)")
             } else {
-                DetectionOverlay(pointViewModels: $appViewModel.pointViewModels)
+                DetectionOverlay(pointViewModels: $appViewModel.pointViewModels,
+                                 bufferSize: $appViewModel.bufferSize)
                     .foregroundColor(.clear)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }

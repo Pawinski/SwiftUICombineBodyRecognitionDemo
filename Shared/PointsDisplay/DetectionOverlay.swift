@@ -10,6 +10,7 @@ import SwiftUI
 struct DetectionOverlay: View {
 
     @Binding var pointViewModels: [PointViewModel]
+    @Binding var bufferSize: CGSize
 
     var body: some View {
         GeometryReader { geo in
@@ -19,6 +20,8 @@ struct DetectionOverlay: View {
                     .foregroundColor(.blue)
                     .frame(width: 30, height: 30, alignment: .center)
             }
+            .position(x: 0, y: 0)
+            .frame(width: bufferSize.width, height: bufferSize.height, alignment: .topLeading)
         }
     }
 }

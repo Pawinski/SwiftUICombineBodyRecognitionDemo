@@ -12,13 +12,13 @@ struct DetectionViewController: UIViewControllerRepresentable {
     let pointViewModels: Binding<Array<PointViewModel>>
     let errorViewModel: Binding<AVCaptureError?>
 
-    public func makeUIViewController(context: Context) -> CameraViewController {
-        let viewController = CameraViewController()
+    public func makeUIViewController(context: Context) -> CameraOutputViewController {
+        let viewController = CameraOutputViewController()
         viewController.delegate = context.coordinator
         return viewController
     }
 
-    public func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {
+    public func updateUIViewController(_ uiViewController: CameraOutputViewController, context: Context) {
         //
     }
 
